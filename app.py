@@ -2,14 +2,11 @@ import streamlit as st
 import pandas as pd
 import os
 from PIL import Image
-from io import BytesIO
-import base64
-from st_clickable_images import clickable_images
 
-# pip install streamlit pandas pillow openpyxl st-clickable-images
+# pip install streamlit pandas pillow openpyxl
 
-st.set_page_config('sofa simulator', layout='wide')
-st.markdown('# sofa simulator')
+st.set_page_config('sofa 画像抽出app', layout='wide')
+st.markdown('# sofa 画像抽出app')
 
 # ソファ画像のディレクトリ
 image_dir = "./img/sofa/"
@@ -20,15 +17,16 @@ df = pd.read_excel('./sofa_info.xlsx')
 all_option = "全て選択"
 
 ## 項目選択
-
 # シリーズ
-op_series_list = [all_option] + df["シリーズ"].unique().tolist()
-op_series = st.sidebar.selectbox("シリーズ", op_series_list)
+op_series_list1 = [all_option] + df["シリーズ"].unique().tolist()
+op_series_list2 = st.sidebar.multiselect(\
+    "シリーズ", op_series_list1, default=[all_option]
+    )
 
-if op_series == all_option:
+if op_series_list2 == [all_option]:
     filtered_df = df
 else:
-    filtered_df = df[df["シリーズ"] == op_series]
+    filtered_df = df[df["シリーズ"].isin(op_series_list2)]
 
 # 色系統/木部
 op_woodcolor2_list = [all_option] + filtered_df["色系統/木部"].unique().tolist()
@@ -40,13 +38,17 @@ else:
     filtered_df = filtered_df[filtered_df["色系統/木部"] == op_woodcolor2]
 
 # 色系統/張地
-op_fabric2_list = [all_option] + filtered_df["色系統/張地"].unique().tolist()
-op_fabric2 = st.sidebar.selectbox("色系統/張地", op_fabric2_list)
+op_fabric2_list1 = filtered_df["色系統/張地"].unique().tolist()
+op_fabric2_list1 = sorted(op_fabric2_list1)
+op_fabric2_list1 = [all_option] + op_fabric2_list1
+op_fabric2_list2 = st.sidebar.multiselect(\
+    "色系統/張地", op_fabric2_list1, default=[all_option]
+    )
 
-if op_fabric2 == all_option:
+if op_fabric2_list2 == [all_option]:
     filtered_df = filtered_df
 else:
-    filtered_df = filtered_df[filtered_df["色系統/張地"] == op_fabric2]
+    filtered_df = filtered_df[filtered_df["色系統/張地"].isin(op_fabric2_list2)]
 
 # 材質
 op_kinds_list = [all_option] + filtered_df["材質"].unique().tolist()
@@ -67,13 +69,17 @@ else:
     filtered_df = filtered_df[filtered_df["塗色"] == op_woodcolor1]
 
 # 張地
-op_fabric_list = [all_option] + filtered_df["張地"].unique().tolist()
-op_fabric = st.sidebar.selectbox("張地", op_fabric_list)
+op_fabric_list1 = filtered_df["張地"].unique().tolist()
+op_fabric_list1 = sorted(op_fabric_list1)
+op_fabric_list1 = [all_option] + op_fabric_list1 
+op_fabric_list2 = st.sidebar.multiselect(\
+    "張地", op_fabric_list1, default=[all_option]
+    )
 
-if op_fabric == all_option:
+if op_fabric_list2 == [all_option]:
     filtered_df = filtered_df
 else:
-    filtered_df = filtered_df[filtered_df["張地"] == op_fabric]
+    filtered_df = filtered_df[filtered_df["張地"].isin(op_fabric_list2)]
 
 # サイズ
 op_size_list = [all_option] + filtered_df["サイズ"].unique().tolist()
@@ -110,39 +116,6 @@ for i in range(len(filtered_df)):
     # 30枚でstop
     if i == 30:
         break
-
-
-
-# opened_imgs = []
-# # 検索結果の画像をfilesリストに格納
-# for i in range(len(filtered_df)):
-#     image_path = os.path.join(image_dir, filtered_df["ファイル名"].iloc[i])
-#     image = Image.open(image_path)
-#     opened_imgs.append(image)
-    
-#     images = []
-#     for file in opened_imgs:
-#         # BytesIOを使用してpngファイルをバイナリーデータに変換
-#         # メモリ上でバイナリデータを扱う
-#         image_bytes = BytesIO()
-#         # メモリ上に保存
-#         file.save(image_bytes, format='PNG')
-#         #バイナリデータをテキストに変換し扱いやすい文字列に変換
-#         encoded = base64.b64encode(image_bytes.getvalue()).decode()
-#         #HTMLで表示可能な形式に変換 HTML の img タグの src 属性に相当
-#         images.append(f"data:image/png;base64,{encoded}")
-
-#     #returns the index of the last image clicked on
-#     clicked = clickable_images(
-#         images,
-#         titles=[f"Image #{fname}" for fname in images],
-#         #cssの設定
-#         # 要素をフレックスボックスとして表示 直下の子要素を横並び　子要素を水平方向に中央揃え
-#         # コンテナに収まりきらない場合、アイテムを折り返して新しい行に配置
-#         div_style={"display": "flex", "justify-content": "center", "flex-wrap": "wrap"},
-#         #余白
-#         img_style={"margin": "5px", "height": "200px"},
-#     )
 
 
 
